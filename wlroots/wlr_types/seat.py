@@ -1,6 +1,7 @@
 # Copyright (c) 2019 Sean Vig
 
-from typing import Optional, Tuple
+from __future__ import annotations
+
 from weakref import WeakKeyDictionary
 
 from pywayland.server import Display, Signal
@@ -16,12 +17,12 @@ _weakkeydict: WeakKeyDictionary = WeakKeyDictionary()
 
 
 class KeyboardGrab(Ptr):
-    def __init__(self, seat: "Seat") -> None:
+    def __init__(self, seat: Seat) -> None:
         """Setup the keyboard grab"""
         self._ptr = ffi.new("struct wlr_seat_keyboard_grab *")
         self._seat = seat
 
-    def __enter__(self) -> "KeyboardGrab":
+    def __enter__(self) -> KeyboardGrab:
         """State the keyboard grab"""
         lib.wlr_seat_keyboard_start_grab(self._seat._ptr, self._ptr)
         return self
@@ -89,14 +90,14 @@ class Seat(PtrHasData):
         self.start_drag_event = Signal(ptr=ffi.addressof(self._ptr.events.start_drag))
 
     @property
-    def pointer_state(self) -> "SeatPointerState":
+    def pointer_state(self) -> SeatPointerState:
         """The pointer state associated with the seat"""
         pointer_state_ptr = ffi.addressof(self._ptr.pointer_state)
         _weakkeydict[pointer_state_ptr] = self._ptr
         return SeatPointerState(pointer_state_ptr)
 
     @property
-    def keyboard_state(self) -> "SeatKeyboardState":
+    def keyboard_state(self) -> SeatKeyboardState:
         """The keyboard state associated with the seat"""
         keyboard_state_ptr = ffi.addressof(self._ptr.keyboard_state)
         _weakkeydict[keyboard_state_ptr] = self._ptr
@@ -271,7 +272,7 @@ class Seat(PtrHasData):
             # TODO: wrap source in a data source
             lib.wlr_seat_set_selection(self._ptr, source, serial)
 
-    def __enter__(self) -> "Seat":
+    def __enter__(self) -> Seat:
         """Context manager to clean up the seat"""
         return self
 
@@ -296,7 +297,7 @@ class PointerRequestSetCursorEvent(Ptr):
         return self._ptr.serial
 
     @property
-    def hotspot(self) -> Tuple[int, int]:
+    def hotspot(self) -> tuple[int, int]:
         return self._ptr.hotspot_x, self._ptr.hotspot_y
 
 
@@ -354,7 +355,7 @@ class SeatPointerState(Ptr):
         )
 
     @property
-    def focused_surface(self) -> Optional[Surface]:
+    def focused_surface(self) -> Surface | None:
         """The surface that currently has keyboard focus"""
         focused_surface = self._ptr.focused_surface
         if focused_surface == ffi.NULL:
@@ -373,7 +374,7 @@ class SeatKeyboardState(Ptr):
         )
 
     @property
-    def focused_surface(self) -> Optional[Surface]:
+    def focused_surface(self) -> Surface | None:
         """The surface that is currently focused"""
         focused_surface = self._ptr.focused_surface
         if focused_surface == ffi.NULL:

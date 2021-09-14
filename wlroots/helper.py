@@ -1,7 +1,5 @@
 # Copyright (c) 2021 Sean Vig
 
-from typing import Tuple
-
 from pywayland.server import Display
 
 from wlroots.backend import Backend, BackendType
@@ -10,7 +8,7 @@ from wlroots.wlr_types import Compositor
 
 def build_compositor(
     display: Display, *, backend_type=BackendType.AUTO
-) -> Tuple[Compositor, Backend]:
+) -> tuple[Compositor, Backend]:
     """Build and run a compositor
 
     :param display:
